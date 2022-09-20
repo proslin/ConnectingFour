@@ -166,11 +166,7 @@ func findRowNumber(colNum: Int) -> Int? {
 func checkHorisontal(row: Int, symbol: String) -> Bool {
     var str = String()
     let symbolForCheck = symbol + symbol + symbol + symbol
-   // print("печатаем символ для проверки горизонталь \(symbolForCheck)")
-  // print(arr[row].description)
     str = arr[row].joined()
-    //print(str)
-    
     if str.contains(symbolForCheck) { return true }
     return false
 }
@@ -210,6 +206,15 @@ func checkDiagonal(column: Int, row: Int, symbol: String) -> Bool {
 func isEnd(input: String) -> Bool {
     if input.lowercased() == "end" { return true }
     return false
+}
+
+func isBoardFull(arr: [[String]]) -> Bool{
+    for i in (0...rows - 1) {
+        for j in (0...columns - 1) {
+            if arr[i][j] == " " { return false }
+        }
+    }
+    return true
 }
 
 func game() {
@@ -252,7 +257,13 @@ func game() {
             //print("Game over")
             break
         }
+        
+        if isBoardFull(arr: arr) {
+            print("It is a draw")
+            break
+        }
         i += 1
+        
     } while true
     
 //    repeat{
