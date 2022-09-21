@@ -8,12 +8,19 @@
 import Foundation
 
 struct ConnectFourGame {
-    var onePlayer: Player = Player(name: "", symbol: "o", isFirst: true)
-    var twoPlayer: Player = Player(name: "", symbol: "*", isFirst: false)
+    /// Первый игрок
+    var firstPlayer: Player = Player(name: "", symbol: "o")
+    /// Второй игрок
+    var secondPlayer: Player = Player(name: "", symbol: "*")
+    /// Количество столбцов вводим с клавиатуры
     var columns: Int = 2
+    /// Количество строк вводим с клавиатуры
     var rows : Int = 2
+    /// Номер раунда игры
     var rounds: Int = 1
+    /// Игровое поле
     var boardCells: [[String]] = []
+    /// Признак конца игры
     var isEndOfGame = false
     
     mutating func prepareGame() {
@@ -22,7 +29,7 @@ struct ConnectFourGame {
     }
     
     public func printStartedParam() {
-        print("\(onePlayer.name) VS \(twoPlayer.name)")
+        print("\(firstPlayer.name) VS \(secondPlayer.name)")
         print("\(rows) X \(columns) board")
     }
     
@@ -31,13 +38,13 @@ struct ConnectFourGame {
             if rounds > 1 {
                 print("Game #\(round)")
             }
-            initEpptyArray(row: rows, column: columns)
+            initEmptyArray(row: rows, column: columns)
             printGameBoard(row: rows, column: columns)
             game(round: round)
             if isEndOfGame { break }
             if rounds > 1 {
                 print("Score")
-                print("\(onePlayer.name):\(onePlayer.score) \(twoPlayer.name):\(twoPlayer.score)")
+                print("\(firstPlayer.name):\(firstPlayer.score) \(secondPlayer.name):\(secondPlayer.score)")
             }
         }
         
@@ -45,14 +52,14 @@ struct ConnectFourGame {
     }
     
     private mutating func game(round: Int) {
-        var playersQueue = (round % 2 != 0) ? [onePlayer, twoPlayer] : [twoPlayer, onePlayer]
+        var playersQueue = (round % 2 != 0) ? [firstPlayer, secondPlayer] : [secondPlayer, firstPlayer]
         var symbol: String
         repeat {
     
             let currentPlayer = playersQueue.first!
             
             guard let colNum = readColumnNumber(message: "\(currentPlayer.name) turn:") else { return }
-        let columnNumber = colNum
+            let columnNumber = colNum
             guard let rowNumber = findRowNumber(colNum: columnNumber) else {
                 print("\(columnNumber) \(Errors.fullColumn.rawValue)")
                 continue
@@ -69,8 +76,8 @@ struct ConnectFourGame {
             
             if isBoardFull(arr: boardCells) {
                 print("It is a draw")
-                onePlayer.increaseScore(points: 1)
-                twoPlayer.increaseScore(points: 1)
+                firstPlayer.increaseScore(points: 1)
+                secondPlayer.increaseScore(points: 1)
                 break
             }
             playersQueue.reverse()
@@ -135,7 +142,7 @@ struct ConnectFourGame {
         print(" \(str)")
     }
 
-    private mutating func initEpptyArray(row: Int, column: Int) {
+    private mutating func initEmptyArray(row: Int, column: Int) {
         boardCells = [[String]](repeating: [String](repeating: " ", count: column), count: row)
     }
 

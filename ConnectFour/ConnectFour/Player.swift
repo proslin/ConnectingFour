@@ -8,20 +8,21 @@
 import Foundation
 
 class Player {
+    ///Имя игрока
     let name: String
+    ///Символ которым он будет играть
     let symbol: String
-    var isFirst: Bool
+    ///Количество очков текущего игрока
     var score: Int = 0
     
-    init(name: String, symbol: String, isFirst: Bool) {
+    init(name: String, symbol: String) {
         self.name = name
         self.symbol = symbol
-        self.isFirst = isFirst
     }
     
-    static func createPlayer(msg: String, symbol: String, isFirst: Bool) -> Player {
+    static func createPlayer(msg: String, symbol: String) -> Player {
         let name = readInput(message: msg)
-        return Player(name: name, symbol: symbol, isFirst: isFirst)
+        return Player(name: name, symbol: symbol)
     }
     
     func increaseScore(points: Int) {
