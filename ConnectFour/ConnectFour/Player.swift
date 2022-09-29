@@ -32,7 +32,7 @@ class Player {
     static func readInput(message: String) -> String {
         var inputStr: String
         repeat {
-            print(message)
+            print(message, terminator: "\n> ")
             inputStr = readLine() ?? ""
         } while inputStr.isEmpty
         

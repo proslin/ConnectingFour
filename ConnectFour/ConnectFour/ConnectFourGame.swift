@@ -93,7 +93,7 @@ struct ConnectFourGame {
         """
         var dimension = String()
         repeat{
-            print(message)
+            print(message, terminator: "\n> ")
             dimension = readLine() ?? ""
         } while getDimensionsFromString(dimension) == nil
         
@@ -111,7 +111,7 @@ struct ConnectFourGame {
               """
         var gamesNumber = Int()
         repeat{
-            print(message)
+            print(message, terminator: "\n> ")
             let input = readLine()
             guard let input = input else { break }
             if input == "" {
@@ -231,7 +231,7 @@ struct ConnectFourGame {
     private mutating func readColumnNumber(message: String) -> Int? {
         var columnNumber = Int()
         repeat{
-          print(message)
+          print(message, terminator: "\n> ")
             guard let input = readLine() else {
                 print(Errors.notANumber.rawValue)
                 continue
