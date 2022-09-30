@@ -9,33 +9,39 @@ import Foundation
 
 class Player {
     ///Имя игрока
-    let name: String
+    private let name: String
     ///Символ которым он будет играть
-    let symbol: String
+    private let symbol: String
+    ///Символ для проверки победы
+    private var symbolForCheck: String
     ///Количество очков текущего игрока
-    var score: Int = 0
+    private var score: Int = 0
     
     init(name: String, symbol: String) {
         self.name = name
         self.symbol = symbol
+        self.symbolForCheck = symbol + symbol + symbol + symbol
     }
     
-    static func createPlayer(msg: String, symbol: String) -> Player {
-        let name = readInput(message: msg)
-        return Player(name: name, symbol: symbol)
+    func getName() -> String {
+        return self.name
+    }
+    
+    func getSymbol() -> String {
+        return self.symbol
+    }
+    
+    func getPlayerScore() -> Int {
+        return self.score
+    }
+    
+    func getSymbolForCheck() -> String {
+        return self.symbolForCheck
     }
     
     func increaseScore(points: Int) {
         self.score += points
     }
     
-    static func readInput(message: String) -> String {
-        var inputStr: String
-        repeat {
-            print(message, terminator: "\n> ")
-            inputStr = readLine() ?? ""
-        } while inputStr.isEmpty
-        
-        return inputStr
-    }
+    
 }

@@ -7,33 +7,40 @@
 
 import Foundation
 
-struct ConnectFourGame {
+class ConnectFourGame {
     /// Первый игрок
-    var firstPlayer: Player = Player(name: "", symbol: "o")
+    private var firstPlayer: Player //= Player(name: "", symbol: "o")
     /// Второй игрок
-    var secondPlayer: Player = Player(name: "", symbol: "*")
+    private var secondPlayer: Player //= Player(name: "", symbol: "*")
     /// Количество столбцов вводим с клавиатуры
-    var columns: Int = 2
+    private var columns: Int = 7
     /// Количество строк вводим с клавиатуры
-    var rows : Int = 2
+    private var rows : Int = 6
     /// Номер раунда игры
-    var rounds: Int = 1
+    private var rounds: Int = 1
     /// Игровое поле
-    var boardCells: [[String]] = []
+    private var boardCells: [[String]] = []
     /// Признак конца игры
-    var isEndOfGame = false
+    private var isEndOfGame = false
     
-    mutating func prepareGame() {
+    init(firstPlayer: Player, secondPlayer: Player) {
+        self.firstPlayer = firstPlayer
+        self.secondPlayer = secondPlayer
+    }
+    
+    private func prepareGame() {
         readBoardDimensions()
         rounds = readNumberOfGames()
     }
     
-    public func printStartedParam() {
-        print("\(firstPlayer.name) VS \(secondPlayer.name)")
+    private func printStartedParam() {
+        print("\(firstPlayer.getName()) VS \(secondPlayer.getName())")
         print("\(rows) X \(columns) board")
     }
     
-    public mutating func start() {
+    public func start() {
+        prepareGame()
+        printStartedParam()
         for round in (1...rounds) {
             if rounds > 1 {
                 print("Game #\(round)")
@@ -44,32 +51,30 @@ struct ConnectFourGame {
             if isEndOfGame { break }
             if rounds > 1 {
                 print("Score")
-                print("\(firstPlayer.name):\(firstPlayer.score) \(secondPlayer.name):\(secondPlayer.score)")
+                print("\(firstPlayer.getName()):\(firstPlayer.getPlayerScore()) \(secondPlayer.getName()):\(secondPlayer.getPlayerScore())")
             }
         }
         
         print("Game over")
     }
     
-    private mutating func game(round: Int) {
+    private func game(round: Int) {
         var playersQueue = (round % 2 != 0) ? [firstPlayer, secondPlayer] : [secondPlayer, firstPlayer]
-        var symbol: String
         repeat {
-    
+            
             let currentPlayer = playersQueue.first!
             
-            guard let colNum = readColumnNumber(message: "\(currentPlayer.name) turn:") else { return }
+            guard let colNum = readColumnNumber(message: "\(currentPlayer.getName()) turn:") else { return }
             let columnNumber = colNum
             guard let rowNumber = findRowNumber(colNum: columnNumber) else {
                 print("\(columnNumber) \(Errors.fullColumn.rawValue)")
                 continue
             }
             
-            symbol = currentPlayer.symbol
-            boardCells[rowNumber][columnNumber - 1] = symbol
+            boardCells[rowNumber][columnNumber - 1] = currentPlayer.getSymbol()
             printGameBoard(row: rows, column: columns)
-            if checkHorisontal(row: rowNumber, symbol: symbol) || checkVertical(column: columnNumber, symbol: symbol) || checkDiagonal(column: columnNumber - 1, row: rowNumber, symbol: symbol) {
-                print("\(currentPlayer.name) won")
+            if checkHorisontal(row: rowNumber, currentPlayer: currentPlayer) || checkVertical(column: columnNumber, currentPlayer: currentPlayer) || checkDiagonal(column: columnNumber - 1, row: rowNumber, currentPlayer: currentPlayer) {
+                print("\(currentPlayer.getName()) won")
                 currentPlayer.increaseScore(points: 2)
                 break
             }
@@ -86,21 +91,21 @@ struct ConnectFourGame {
         
     }
     
-    private mutating func readBoardDimensions() {
+    private func readBoardDimensions() {
         let message = """
         Set the board dimensions (Rows x Columns)
         Press Enter for default (6x7)
         """
         var dimension = String()
-        repeat{
+        repeat {
             print(message, terminator: "\n> ")
             dimension = readLine() ?? ""
         } while getDimensionsFromString(dimension) == nil
         
         guard let row = getDimensionsFromString(dimension)?.row,
               let column = getDimensionsFromString(dimension)?.column else { return }
-            rows = row
-            columns = column
+        rows = row
+        columns = column
     }
     
     private func readNumberOfGames() -> Int {
@@ -110,7 +115,7 @@ struct ConnectFourGame {
               Input a number of games:
               """
         var gamesNumber = Int()
-        repeat{
+        repeat {
             print(message, terminator: "\n> ")
             let input = readLine()
             guard let input = input else { break }
@@ -132,7 +137,7 @@ struct ConnectFourGame {
     }
     
     private func printGameBoard(row: Int, column: Int) {
-       print("  \((1...column).map{ String($0) }.joined(separator: " "))")
+        print("  \((1...column).map{ String($0) }.joined(separator: " "))")
         printArray(arr: boardCells)
         var str: String = ""
         let count = 2 * column + 1
@@ -141,11 +146,11 @@ struct ConnectFourGame {
         }
         print(" \(str)")
     }
-
-    private mutating func initEmptyArray(row: Int, column: Int) {
+    
+    private func initEmptyArray(row: Int, column: Int) {
         boardCells = [[String]](repeating: [String](repeating: " ", count: column), count: row)
     }
-
+    
     private func printArray(arr: [[String]]) {
         for i in (0...(rows - 1 )) {
             var str = String()
@@ -159,9 +164,9 @@ struct ConnectFourGame {
             }
             print(str)
         }
-                
+        
     }
-
+    
     private func findRowNumber(colNum: Int) -> Int? {
         var rowNum = Int()
         for j in (0...rows - 1).reversed() {
@@ -173,27 +178,23 @@ struct ConnectFourGame {
         return nil
     }
     
-    private func getSymbolForCheck(symbol: String) -> String {
-        return (symbol + symbol + symbol + symbol)
-    }
-
-    private func checkHorisontal(row: Int, symbol: String) -> Bool {
+    private func checkHorisontal(row: Int, currentPlayer: Player) -> Bool {
         var str = String()
         str = boardCells[row].joined()
-        if str.contains(getSymbolForCheck(symbol: symbol)) { return true }
+        if str.contains(currentPlayer.getSymbolForCheck()) { return true }
         return false
     }
-
-    private func checkVertical(column: Int, symbol: String) -> Bool {
+    
+    private func checkVertical(column: Int, currentPlayer: Player) -> Bool {
         var str = String()
         for j in (0...rows - 1) {
             str += boardCells[j][column - 1]
         }
-        if str.contains(getSymbolForCheck(symbol: symbol)) { return true }
+        if str.contains(currentPlayer.getSymbolForCheck()) { return true }
         return false
     }
-
-    private func checkDiagonal(column: Int, row: Int, symbol: String) -> Bool {
+    
+    private func checkDiagonal(column: Int, row: Int, currentPlayer: Player) -> Bool {
         var strUp = String()
         var strDown = String()
         for i in (row - 3...row + 3) {
@@ -210,15 +211,15 @@ struct ConnectFourGame {
                 }
             }
         }
-        if strUp.contains(getSymbolForCheck(symbol: symbol)) || strDown.contains(getSymbolForCheck(symbol: symbol)) { return true }
+        if strUp.contains(currentPlayer.getSymbolForCheck()) || strDown.contains(currentPlayer.getSymbolForCheck()) { return true }
         return false
     }
-
+    
     private func isEnd(input: String) -> Bool {
         if input.lowercased() == "end" { return true }
         return false
     }
-
+    
     private func isBoardFull(arr: [[String]]) -> Bool{
         for i in (0...rows - 1) {
             for j in (0...columns - 1) {
@@ -228,14 +229,14 @@ struct ConnectFourGame {
         return true
     }
     
-    private mutating func readColumnNumber(message: String) -> Int? {
+    private func readColumnNumber(message: String) -> Int? {
         var columnNumber = Int()
-        repeat{
-          print(message, terminator: "\n> ")
+        repeat {
+            print(message, terminator: "\n> ")
             guard let input = readLine() else {
                 print(Errors.notANumber.rawValue)
                 continue
-                }
+            }
             if isEnd(input: input) {
                 isEndOfGame = true
                 return nil
@@ -246,7 +247,7 @@ struct ConnectFourGame {
             }
             if columnNum < 1 || columnNum > columns {
                 print("\(Errors.invalidColumn.rawValue) (1 - \(columns))")
-               continue
+                continue
             }
             columnNumber = columnNum
             break
@@ -279,7 +280,6 @@ struct ConnectFourGame {
                 print(Errors.invalidColumnNumber.rawValue)
                 return nil
             }
-           
         } else {
             print(Errors.invalidInput.rawValue)
             return nil
